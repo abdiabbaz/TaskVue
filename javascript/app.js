@@ -4,7 +4,7 @@ const app = Vue.createApp({
     data(){
         return{ 
             TodoList: [],
-            TodoObject: {title: "", description: "", priority:1,isCompleted:false, createdAt: this.formatDateToInput(new Date()), dueDate: null},
+            TodoObject: {title: "", description: "", priority:1,isCompleted:false, createdAt: null, dueDate: null},
             maxDescriptionLength: 50,
         }
     },
@@ -52,11 +52,11 @@ const app = Vue.createApp({
         formatPriority(priority){
             switch(priority){
                 case 1:
-                    return 'High';
+                    return 'Low';
                 case 2:
                     return 'Medium';
                 case 3:
-                    return 'Low';
+                    return 'High';
                 default:
                     return 'Unknown';
             }
@@ -88,7 +88,7 @@ const app = Vue.createApp({
           },
           getCompletionClass(isCompleted) {
             return isCompleted ? 'table-success' : 'table-danger';
-        }
+        },
     }
 })
 
