@@ -50,17 +50,25 @@
                     <th>Description</th>
                     <th>Priority</th>
                     <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in formattedTodoList" :key="item.id" :class="getCompletionClass(item.isCompleted)"
-                  >
+                  <tr v-for="item in formattedTodoList" :key="item.id" :class="getCompletionClass(item.isCompleted)">
                     <td>{{item.title}}</td>
                     <td>{{item.description}}</td>
                     <td>{{item.priority}}</td>
                     <td>
                       <button class="btn btn-sm":class="item.isCompleted ? 'btn-success' : 'btn-secondary'"@click="toggleCompletion(item)">{{ item.isCompleted ? "Completed" : "Mark as Completed"}}</button>
                     </td>
+                    <td id="btn-change-color">
+                      <button  class="btn btn-danger btn-sm" @click="deleteTodo(item.todoId)">
+                        <img src="https://img.icons8.com/material-outlined/24/000000/delete.png" alt="Delete" />
+                      </button>
+                      <button class="btn btn-warning btn-sm">
+                        <img src="https://img.icons8.com/material-outlined/24/000000/edit--v1.png" alt="Edit" />
+                      </button>
+                    </td>                    
                   </tr>
                 </tbody>
               </table>
@@ -80,7 +88,7 @@
                         <div class="col-6">
                           <div class="form-group">
                             <label class="form-label" for="">Title</label>
-                            <input v-model="TodoObject.title" type="text" class="form-control">
+                            <input required minlength="3" maxlength="15" v-model="TodoObject.title" type="text" class="form-control">
                           </div>
                           <div class="form-group">
                             <label class="form-label" for="">Priority</label>
@@ -93,17 +101,17 @@
                           </div>
                           <div class="form-group">
                             <label class="form-label" for="">Start (optional)</label>
-                            <input v-model="TodoObject.createdAt" type="date" class="form-control">
+                            <input v-model="TodoObject.createdAt" type="datetime-local" class="form-control">
                           </div>
                           <div class="form-group">
                             <label class="form-label" for="">Finish (optional)</label>
-                            <input v-model="TodoObject.dueDate" type="date" class="form-control">
+                            <input v-model="TodoObject.dueDate" type="datetime-local" class="form-control">
                           </div>
                         </div>
                         <div class="col-6">
                           <div class="form-group">
                             <label class="form-label" for="">Description</label>
-                            <textarea v-model="TodoObject.description" id="txtAreaHeight" name="" class="form-control" id=""></textarea>
+                            <textarea required maxlength="50" v-model="TodoObject.description" id="txtAreaHeight" name="" class="form-control" id=""></textarea>
                             <small class="text-muted">
                               {{ remainingCharacters }} characters remaining
                           </small>

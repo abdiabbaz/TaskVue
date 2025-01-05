@@ -1,3 +1,7 @@
 #txtAreaHeight{
     height: 247px;
 }
+
+#btn-change-color{
+    border-radius: 0px;
+}
