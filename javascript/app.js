@@ -6,6 +6,9 @@ const app = Vue.createApp({
             TodoList: [],
             TodoObject: {title: "", description: "", priority:1,isCompleted:false, createdAt: null, dueDate: null},
             maxDescriptionLength: 50,
+            todoToDelete: null, 
+            priority: 0,
+
         }
     },
     created(){
@@ -16,13 +19,14 @@ const app = Vue.createApp({
             return this.TodoList.map(item => ({
                 ...item,
                 priority: this.formatPriority(item.priority),
-            }));
+            }))
         },
         remainingCharacters() {
             return this.maxDescriptionLength - this.TodoObject.description.length
         }
     },
     methods:{
+        // Axios CRUD
         loadList(){
             axios.get(BASE_URL).then(response =>{
                 this.TodoList = response.data
@@ -36,13 +40,13 @@ const app = Vue.createApp({
                 priority: parseInt(this.TodoObject.priority),
                 createdAt: this.formatDateToISOString(this.TodoObject.createdAt), 
                 dueDate: this.TodoObject.dueDate ? this.formatDateToISOString(this.TodoObject.dueDate) : null,
-            };
-            this.TodoObject.createdAt = this.formatDateToISOString(new Date());
+            }
+            this.TodoObject.createdAt = this.formatDateToISOString(new Date())
             axios.post(BASE_URL, payload)
                 .then(response => {
-                    console.log('Response:', response.data);
-                    console.log('Todo added successfully!');
-                    this.TodoList.push(response.data);
+                    console.log('Response:', response.data)
+                    console.log('Todo added successfully!')
+                    this.TodoList.push(response.data)
                     this.TodoObject = {
                         title: "",
                         description: "",
@@ -50,28 +54,63 @@ const app = Vue.createApp({
                         isCompleted: false,
                         createdAt: null,
                         dueDate: null,
-                    };
-                    const modalElement = document.getElementById('exampleModal');
-                    const modal = bootstrap.Modal.getInstance(modalElement);
-                    modal.hide();
+                    }
+                    const modalElement = document.getElementById('exampleModal')
+                    const modal = bootstrap.Modal.getInstance(modalElement)
+                    modal.hide()
                 })
                 .catch(error => {
-                    console.error('Error adding todo:', error);
-                });
+                    console.error('Error adding todo:', error)
+                })
                 this.loadList()
         },
-        deleteTodo(id) {
-            if (window.confirm("Are you sure you want to delete this task?")) {
-              axios.delete(`${BASE_URL}/${id}`)
+          showDeleteModal(todoId) {
+            this.todoToDelete = todoId
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'))
+            deleteModal.show()
+        },
+        confirmDelete() {
+            axios.delete(`${BASE_URL}/${this.todoToDelete}`)
                 .then(() => {
-                  this.TodoList = this.TodoList.filter(item => item.todoId !== id);
-                  console.log("Task is deleted");
+                    this.TodoList = this.TodoList.filter(item => item.todoId !== this.todoToDelete)
+                    console.log("Task deleted successfully")
+                    this.todoToDelete = null
                 })
                 .catch(error => {
-                  console.error("Something went wrong during deletion", error);
-                });
-            }
-          },        
+                    console.error("Error during deletion", error)
+                })
+    
+            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'))
+            deleteModal.hide()
+        },
+        loadOnlyCompleted(){
+            axios.get(`${BASE_URL}/CompletedTrue`).then(response =>{
+                this.TodoList = response.data
+            }).catch(error => {
+                console.log("Something went wrong with fetching data", error)
+            })
+        },
+        loadNotCompleted(){
+            axios.get(`${BASE_URL}/CompletedFalse`).then(response =>{
+                this.TodoList = response.data
+            }).catch(error => {
+                console.log("Something went wrong with fetching data", error)
+            })
+        },
+        filterByPriority(priority) {
+            axios.get(`${BASE_URL}/FilterByPriority/${priority}`)
+                .then(response => {
+                    console.log(response.data)
+                    this.TodoList = response.data
+                })
+                .catch(error => {
+                    console.error("Error fetching filtered data", error)
+                })
+        },
+        resetFilter(){
+            this.loadList()
+        },
+        // Hjælpe metoder
         formatPriority(priority){
             switch(priority){
                 case 1:
@@ -84,7 +123,7 @@ const app = Vue.createApp({
                     return 'Unknown'
             }
         },
-        toggleCompletion(item) {
+        toggleCompletion(item){
             if (!item.todoId) { 
                 console.error("Item ID is undefined:", item)
                 return
@@ -93,7 +132,7 @@ const app = Vue.createApp({
                 .then(response => {
                     this.TodoList = this.TodoList.map(todo => 
                         todo.todoId === item.todoId ? { ...todo, isCompleted: response.data.isCompleted } : todo
-                    );
+                    )
                 })
                 .catch(error => {
                     console.error("Failed to toggle completion", error)
@@ -103,8 +142,8 @@ const app = Vue.createApp({
             return isCompleted ? 'table-success' : 'table-danger'
         },
         formatDateToISOString(date) {
-            const d = new Date(date);
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:00`;
+            const d = new Date(date)
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:00`
         },
         
     }
