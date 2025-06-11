@@ -60,8 +60,4 @@ export default {
     background-color: #07050550;
     border-color: #999;
 }
-
-/* .filter-buttons button:hover {
-  background-color: #e0e0e0;
-} */
 </style>
